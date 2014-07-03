@@ -1,0 +1,17 @@
+- name: checkout devstack
+  git: repo={{ devstack_repo }}
+       dest={{ devstack_home }}
+       version={{ devstack_version }}
+       update=no
+
+- name: create local.conf
+  template: src=templates/local.conf.j2
+            dest={{ devstack_home }}/local.conf
+
+- name: stack.sh
+  shell: "cd {{ devstack_home }} && ./unstack.sh && ./stack.sh 2>&1 > devstack.log"
+
+- name: prepare for offline use
+  lineinfile: dest={{ devstack_home }}/local.conf
+              line="OFFLINE=True"
+              state=present

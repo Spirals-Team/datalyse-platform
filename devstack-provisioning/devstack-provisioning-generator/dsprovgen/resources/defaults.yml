@@ -1,0 +1,29 @@
+config:
+    username: stack
+    password: $6$jVkYQw90ogEUldH0$I6PLcKUFn0mfOg20QbxSEL5gUARQAhmVrP57pfRNK6pgSgTwUYpGDWrp0DU3eKYQneH4CP9BnPK1jpVvoCxgc/
+    version: master
+    repo: git://github.com/openstack-dev/devstack.git
+    install_dir: devstack
+
+    devstack:
+        master_password: admin
+        openstack_version: stable/icehouse
+        dest: /opt/stack
+        logfile: logs/stack.sh.log
+        screen_logdir: logs
+        database_password:
+        rabbit_password:
+        service_password:
+        service_token:
+        local_conf_extra_lines: []
+
+groups:
+    - config:
+        role: control
+
+      hosts: []
+
+    - config:
+        role: compute
+
+      hosts: []

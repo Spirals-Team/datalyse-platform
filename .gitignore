@@ -1,0 +1,9 @@
+doc/document-technique-v1/gestion-cloud.aux
+doc/document-technique-v1/gestion-cloud.fdb_latexmk
+doc/document-technique-v1/gestion-cloud.log
+doc/document-technique-v1/gestion-cloud.pdf
+doc/document-technique-v1/gestion-cloud.synctex.gz
+.vagrant
+*.pyc
+devstack-provisioning/devstack-provisioning-generator/dsprovgen.egg-info
+devstack-provisioning/devstack-provisioning-generator/.idea
