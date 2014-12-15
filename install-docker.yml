@@ -1,0 +1,71 @@
+- name: install docker and required docker images
+  hosts: all
+  gather_facts: no
+  vars:
+    - docker_images_path: "/home/{{ ansible_ssh_user }}/images"
+    - local_docker_images:
+        - openstack-base
+        - openstack-keystone
+        - openstack-glance
+        - openstack-nova-controller
+        - openstack-nova-compute-docker
+        - openstack-nova-compute-kvm
+        - openstack-nova-compute-lxc
+        - openstack-horizon
+        - openstack-client
+    - required_docker_images:
+        - mysql
+        - tutum/rabbitmq
+  
+  tasks:
+    - name: install python-pip
+      sudo: yes
+      apt: name=python-pip
+
+    - name: install latest docker
+      sudo: yes
+      shell: curl -sSL https://get.docker.com/ubuntu/ | sh -x
+      args:
+        creates: /usr/bin/docker
+
+    - name: configure docker
+      sudo: yes
+      lineinfile:
+        dest: /etc/default/docker
+        regexp: ^[#]?DOCKER_OPTS=
+        line: DOCKER_OPTS="-D -H tcp://0.0.0.0:2375 -H unix://"
+        state: present
+
+    - name: restart docker
+      sudo: yes
+      service: name=docker state=restarted
+
+    - name: wait for docker
+      wait_for: port=2375
+
+    - name: add local ssh user to docker group
+      sudo: yes
+      user: name={{ ansible_ssh_user }} groups=docker append=yes
+
+    - name: install docker-py
+      sudo: yes
+      pip: name=docker-py
+
+    - name: create target for images
+      file: path={{ docker_images_path }} state=directory
+
+    - name: copy docker images
+      copy: src=images/ dest={{ docker_images_path }}/
+
+    - name: build docker images
+      docker_image:
+        name: "datalyse/{{ item }}"
+        path: "{{ docker_images_path }}/{{ item }}"
+        state: build
+      with_items: local_docker_images
+
+    - name: fetch required docker images
+      docker_image:
+        name: "{{ item }}"
+        state: present
+      with_items: required_docker_images

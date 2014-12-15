@@ -1,0 +1,194 @@
+name: Single host docker-based openstack
+
+ships:
+  boot2docker:
+    # the IP of the node running docker
+    # boot2docker: $ boot2docker ip
+    # vagrant: defined in the Vagrantfile
+    ip: 192.168.59.103
+    docker_port: 2375
+    # endpoint: boot2docker
+    # tls: true
+    # tls_verify: true
+    # tls_ca_cert: /Users/krikava/.boot2docker/certs/boot2docker-vm/ca.pem
+    # tls_key: /Users/krikava/.boot2docker/certs/boot2docker-vm/key.pem
+    # tls_cert: /Users/krikava/.boot2docker/certs/boot2docker-vm/cert.pem
+
+services:
+  mysql:
+    image: mysql
+    instances:
+      mysql-master:
+        ship: boot2docker
+        command: >
+          mysqld
+            --datadir=/var/lib/mysql
+            --general_log=1
+            --general_log_file=mysqld-general.log
+            --user=mysql
+            --bind-address=0.0.0.0
+            --default-storage-engine=InnoDB
+            --collation-server=utf8_general_ci
+            --character-set-server=utf8
+        env:
+          MYSQL_ROOT_PASSWORD: stack
+        ports:
+          mysql: 3306
+        lifecycle:
+          running: [{ port: mysql, type: tcp }]
+
+  rabbitmq:
+    image: tutum/rabbitmq
+    instances:
+      rabbitmq-master:
+        ship: boot2docker
+        env:
+          RABBITMQ_USER: admin
+          RABBITMQ_PASS: stack
+        ports:
+          amqp: 5672
+          admin: 15672
+        lifecycle:
+          running: [{ port: amqp, type: tcp }]
+
+  keystone:
+    image: datalyse/openstack-keystone
+    requires: [ mysql ]
+    instances:
+      keystone-master:
+        ship: boot2docker
+        env:
+          MYSQL_ROOT_PASSWORD: stack
+          KEYSTONE_PASSWORD: stack
+        ports:
+          keystone: 5000
+          admin: 35357
+        lifecycle:
+          running: [{ port: keystone, type: tcp }]
+
+  glance:
+    image: datalyse/openstack-glance
+    requires: [ mysql, rabbitmq, keystone ]
+    instances:
+      glance-master:
+        ship: boot2docker
+        env:
+          MYSQL_ROOT_PASSWORD: stack
+          RABBITMQ_USERNAME: admin
+          RABBITMQ_PASSWORD: stack
+          KEYSTONE_PASSWORD: stack
+          GLANCE_PASSWORD: stack
+        ports:
+          api: 9191
+          registry: 9292
+        lifecycle:
+          running:
+            - { port: api, type: tcp }
+            - { port: registry, type: tcp }
+
+  nova-controller:
+    image: datalyse/openstack-nova-controller
+    requires: [ mysql, rabbitmq, keystone, glance ]
+    instances:
+      nova-controller-master:
+        ship: boot2docker
+        privileged: true
+        env:
+          MYSQL_ROOT_PASSWORD: stack
+          RABBITMQ_USERNAME: admin
+          RABBITMQ_PASSWORD: stack
+          KEYSTONE_PASSWORD: stack
+          GLANCE_PASSWORD: stack
+          NOVA_PASSWORD: stack
+        ports:
+          api: 8774
+          vnc: 6080
+        lifecycle:
+          running:
+            - { port: api, type: tcp }
+
+  horizon:
+    image: datalyse/openstack-horizon
+    requires: [ keystone, glance, nova-controller ]
+    instances:
+      horizon-master:
+        ship: boot2docker
+        ports:
+          http: 80
+        lifecycle:
+          running:
+            - { port: http, type: tcp }
+
+  client:
+    image: datalyse/openstack-client
+    requires: [ mysql, rabbitmq, keystone, glance, nova-controller ]
+    instances:
+      client:
+        ship: boot2docker
+        env:
+          RABBITMQ_USERNAME: admin
+          RABBITMQ_PASSWORD: stack
+          KEYSTONE_PASSWORD: stack
+          GLANCE_PASSWORD: stack
+          NOVA_PASSWORD: stack
+          MYSQL_ROOT_PASSWORD: stack
+        ports:
+          ssh: 22:2222
+        privileged: true
+        lifecycle:
+          running:
+            - { port: ssh, type: tcp }
+
+  nova-compute-kvm:
+    image: datalyse/openstack-nova-compute-kvm
+    requires: [ mysql, rabbitmq, keystone, glance, nova-controller ]
+    instances:
+      nova-compute-kvm-1:
+        ship: boot2docker
+        privileged: true
+        env:
+          RABBITMQ_USERNAME: admin
+          RABBITMQ_PASSWORD: stack
+          KEYSTONE_PASSWORD: stack
+          GLANCE_PASSWORD: stack
+          NOVA_PASSWORD: stack
+      # nova-compute-kvm-2:
+      #   ship: boot2docker
+      #   privileged: true
+      #   env:
+      #     RABBITMQ_USERNAME: admin
+      #     RABBITMQ_PASSWORD: stack
+      #     KEYSTONE_PASSWORD: stack
+      #     GLANCE_PASSWORD: stack
+      #     NOVA_PASSWORD: stack
+
+  nova-compute-docker:
+    image: datalyse/openstack-nova-compute-docker
+    requires: [ mysql, rabbitmq, keystone, glance, nova-controller ]
+    instances:
+      nova-compute-docker-1:
+        ship: boot2docker
+        privileged: true
+        env:
+          RABBITMQ_USERNAME: admin
+          RABBITMQ_PASSWORD: stack
+          KEYSTONE_PASSWORD: stack
+          GLANCE_PASSWORD: stack
+          NOVA_PASSWORD: stack
+
+  # DEVSTACK
+  # nova-compute-docker:
+  #   image: datalyse/devstack-nova-compute-docker
+  #   requires: [ mysql, rabbitmq, keystone, glance, nova-controller ]
+  #   instances:
+  #     nova-compute-docker-1:
+  #       ship: boot2docker
+  #       privileged: true
+  #       volumes:
+  #         /src: /Users/krikava/Research/Projects/Datalyse/docker-images/src/devstack-nova-compute-docker
+  #       env:
+  #         RABBITMQ_USERNAME: admin
+  #         RABBITMQ_PASSWORD: stack
+  #         KEYSTONE_PASSWORD: stack
+  #         GLANCE_PASSWORD: stack
+  #         NOVA_PASSWORD: stack

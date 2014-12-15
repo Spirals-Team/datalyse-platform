@@ -1,0 +1,41 @@
+- name: import docker images
+  hosts: all
+  vars:
+    - admin_username: admin
+    - admin_password: stack
+
+    - keystone_host: "{{ ansible_env.KEYSTONE_KEYSTONE_MASTER_HOST }}"
+    - keystone_endpoint: "http://{{ keystone_host }}:35357/v2.0"
+
+    - openrc:
+        OS_USERNAME: "{{ admin_username }}"
+        OS_PASSWORD: "{{ admin_password }}"
+        OS_TENANT_NAME: admin
+        OS_AUTH_URL: "{{ keystone_endpoint }}"
+
+  tasks:
+    - name: start docker service
+      service: name=docker state=started
+
+    # it would be better to use a port, but we would have to change docker
+    # configuration
+    - name: wait for docker
+      wait_for: path=/var/run/docker.pid
+
+    - name: import docker images
+      shell: >
+        if ! glance image-show; then
+          docker pull {{ item }}
+          docker save {{ item }} | glance image-create \
+            --is-public=True \
+            --container-format=docker \
+            --disk-format=raw \
+            --name "{{ item }}"
+        fi
+      environment: openrc
+      with_items:
+        - busybox
+        - rastasheep/ubuntu-sshd
+
+    - name: stop docker service
+      service: name=docker state=stopped

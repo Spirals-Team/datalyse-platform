@@ -1,0 +1,77 @@
+- name: configure basics
+  hosts: 127.0.0.1
+  connection: local
+  vars:
+    - mysql_host: "{{ lookup('env', 'MYSQL_MYSQL_MASTER_HOST') | mandatory }}"
+    - mysql_username: root
+    - mysql_password: "{{ lookup('env', 'MYSQL_ROOT_PASSWORD') }}"
+
+    - rabbitmq_host: "{{ lookup('env', 'RABBITMQ_RABBITMQ_MASTER_HOST') | mandatory }}"
+    - rabbitmq_username: "{{ lookup('env', 'RABBITMQ_USERNAME') }}"
+    - rabbitmq_password: "{{ lookup('env', 'RABBITMQ_PASSWORD') }}"
+
+    - keystone_host: "{{ lookup('env', 'KEYSTONE_KEYSTONE_MASTER_HOST') }}"
+
+    - glance_password: "{{ lookup('env', 'GLANCE_PASSWORD') }}"
+
+  tasks:
+    - name: remove unused DB file
+      file: path=/var/lib/glance/glance.sqlite state=absent
+
+    - name: wait for mysql to be available
+      wait_for: host="{{ mysql_host }}" port=3306
+
+    - name: create glance database
+      mysql_db:
+        name: glance
+        encoding: utf8
+        collation: utf8_general_ci
+
+        login_host: "{{ mysql_host }}"
+        login_user: "{{ mysql_username }}"
+        login_password: "{{ mysql_password }}"
+
+    - name: create glance database user
+      mysql_user:
+        name: glance
+        password: "{{ glance_password }}"
+        priv: glance.*:ALL
+        host: "{{ item }}"
+
+        login_host: "{{ mysql_host }}"
+        login_user: "{{ mysql_username }}"
+        login_password: "{{ mysql_password }}"
+      with_items:
+        - localhost
+        - "%"
+
+    - name: configure glance-*.conf
+      ini_file:
+        dest: "{{  item[0]  }}"
+        section: "{{ item[1].section }}"
+        option: "{{ item[1].option }}"
+        value: "{{ item[1].value }}"
+      with_nested:
+        - [ /etc/glance/glance-api.conf, /etc/glance/glance-registry.conf ]
+        - [
+            { section: database, option: connection, value: "mysql://glance:{{ glance_password }}@{{ mysql_host }}/glance" },
+            { section: DEFAULT, option: rpc_backend, value: rabbit },
+            { section: DEFAULT, option: rabbit_host, value: "{{ rabbitmq_host }}" },
+            { section: DEFAULT, option: rabbit_userid, value: "{{ rabbitmq_username }}" },
+            { section: DEFAULT, option: rabbit_password, value: "{{ rabbitmq_password }}" },
+            { section: DEFAULT, option: container_formats, value: "ami,ari,aki,bare,ovf,docker" },
+
+            { section: keystone_authtoken, option: identity_uri, value: "http://{{ keystone_host }}:35357" },
+            { section: keystone_authtoken, option: auth_uri, value: "http://{{ keystone_host }}:5000" },
+            { section: keystone_authtoken, option: auth_host, value: "{{ keystone_host }}" },
+            { section: keystone_authtoken, option: auth_port, value: 35357 },
+            { section: keystone_authtoken, option: auth_protocol, value: http },
+            { section: keystone_authtoken, option: admin_tenant_name, value: service },
+            { section: keystone_authtoken, option: admin_user, value: glance },
+            { section: keystone_authtoken, option: admin_password, value: "{{ glance_password }}" },
+            
+            { section: paste_deploy, option: flavor, value: keystone }
+          ]
+
+    - name: Create the database tables for the Image Service
+      command: glance-manage db_sync
