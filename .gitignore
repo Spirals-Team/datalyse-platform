@@ -1,2 +1,4 @@
+fabfile.pyc
 vagrant-inventory
 .vagrant
+provisioning/ambari/keys

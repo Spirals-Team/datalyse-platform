@@ -1,0 +1,4 @@
+- name: create ambari cluster
+  hosts: tag_master
+  roles:
+    - ambari-blueprint

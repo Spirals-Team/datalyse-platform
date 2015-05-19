@@ -1,0 +1,22 @@
+datalyse-1		ansible_ssh_host=104.155.30.234 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/Users/krikava/.ssh/google_compute_engine
+datalyse-2		ansible_ssh_host=146.148.11.23 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/Users/krikava/.ssh/google_compute_engine
+datalyse-3		ansible_ssh_host=104.155.45.185 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/Users/krikava/.ssh/google_compute_engine
+datalyse-4		ansible_ssh_host=104.155.44.77 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/Users/krikava/.ssh/google_compute_engine
+datalyse-master		ansible_ssh_host=104.155.10.223 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/Users/krikava/.ssh/google_compute_engine
+
+[tag_master]
+datalyse-master
+
+[tag_docker]
+datalyse-1
+datalyse-2
+datalyse-3
+datalyse-4
+datalyse-master
+
+[tag_slave]
+datalyse-1
+datalyse-2
+datalyse-3
+datalyse-4
+

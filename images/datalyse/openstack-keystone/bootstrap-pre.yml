@@ -14,7 +14,7 @@
     - name: wait for mysql to be available
       wait_for: host="{{ mysql_host }}" port=3306
 
-    - name: drop any existing ketstone databases
+    - name: drop any existing keystone databases
       mysql_db:
         name: keystone
         state: absent

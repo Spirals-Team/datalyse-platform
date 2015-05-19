@@ -2,11 +2,9 @@ name: Single host docker-based openstack
 
 ships:
   boot2docker:
-    # the IP of the node running docker
-    # boot2docker: $ boot2docker ip
-    # vagrant: defined in the Vagrantfile
-    ip: 192.168.59.103
+    ip: 192.168.59.103    # $ boot2docker ip
     docker_port: 2375
+
     # endpoint: boot2docker
     # tls: true
     # tls_verify: true
@@ -14,9 +12,18 @@ ships:
     # tls_key: /Users/krikava/.boot2docker/certs/boot2docker-vm/key.pem
     # tls_cert: /Users/krikava/.boot2docker/certs/boot2docker-vm/cert.pem
 
+    # ip: os-master-20150310234400.cloudapp.net
+    # docker_port: 2376
+    # tls: true
+    # tls_verify: true
+    # tls_ca_cert: /Users/krikava/.docker/machines/.client/ca.pem
+    # tls_key: /Users/krikava/.docker/machines/.client/key.pem
+    # tls_cert: /Users/krikava/.docker/machines/.client/cert.pem
+
+
 services:
   mysql:
-    image: mysql
+    image: mysql:latest
     instances:
       mysql-master:
         ship: boot2docker
@@ -38,7 +45,7 @@ services:
           running: [{ port: mysql, type: tcp }]
 
   rabbitmq:
-    image: tutum/rabbitmq
+    image: tutum/rabbitmq:latest
     instances:
       rabbitmq-master:
         ship: boot2docker
@@ -52,7 +59,7 @@ services:
           running: [{ port: amqp, type: tcp }]
 
   keystone:
-    image: datalyse/openstack-keystone
+    image: datalyse/openstack-keystone:latest
     requires: [ mysql ]
     instances:
       keystone-master:
@@ -67,7 +74,7 @@ services:
           running: [{ port: keystone, type: tcp }]
 
   glance:
-    image: datalyse/openstack-glance
+    image: datalyse/openstack-glance:latest
     requires: [ mysql, rabbitmq, keystone ]
     instances:
       glance-master:
@@ -87,7 +94,7 @@ services:
             - { port: registry, type: tcp }
 
   nova-controller:
-    image: datalyse/openstack-nova-controller
+    image: datalyse/openstack-nova-controller:latest
     requires: [ mysql, rabbitmq, keystone, glance ]
     instances:
       nova-controller-master:
@@ -108,7 +115,7 @@ services:
             - { port: api, type: tcp }
 
   horizon:
-    image: datalyse/openstack-horizon
+    image: datalyse/openstack-horizon:latest
     requires: [ keystone, glance, nova-controller ]
     instances:
       horizon-master:
@@ -120,7 +127,7 @@ services:
             - { port: http, type: tcp }
 
   client:
-    image: datalyse/openstack-client
+    image: datalyse/openstack-client:latest
     requires: [ mysql, rabbitmq, keystone, glance, nova-controller ]
     instances:
       client:
@@ -140,7 +147,7 @@ services:
             - { port: ssh, type: tcp }
 
   nova-compute-kvm:
-    image: datalyse/openstack-nova-compute-kvm
+    image: datalyse/openstack-nova-compute-kvm:latest
     requires: [ mysql, rabbitmq, keystone, glance, nova-controller ]
     instances:
       nova-compute-kvm-1:
@@ -163,7 +170,7 @@ services:
       #     NOVA_PASSWORD: stack
 
   nova-compute-docker:
-    image: datalyse/openstack-nova-compute-docker
+    image: datalyse/openstack-nova-compute-docker:latest
     requires: [ mysql, rabbitmq, keystone, glance, nova-controller ]
     instances:
       nova-compute-docker-1:

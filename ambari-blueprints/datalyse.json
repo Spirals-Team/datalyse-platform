@@ -1,0 +1,106 @@
+{
+  "configurations": [
+    {
+      "nagios-env": {
+        "nagios_group" : "nagios",
+        "nagios_user" : "nagios",
+        "nagios_web_login" : "admin",
+        "nagios_web_password" : "admin",
+        "nagios_contact": "nagios@localhost.com"
+      }
+    },
+    {
+      "mapred-site" : {
+        "mapreduce.jobhistory.bind-host" : "0.0.0.0"
+      }
+    },
+    {
+      "yarn-site" : {
+        "yarn.nodemanager.address" : "0.0.0.0:45454",
+        "yarn.nodemanager.bind-host" : "0.0.0.0",
+        "yarn.resourcemanager.bind-host" : "0.0.0.0",
+        "yarn.timeline-service.bind-host" : "0.0.0.0"
+      }
+    },
+    {
+      "hdfs-site" : {
+        "dfs.datanode.address" : "0.0.0.0:50010",
+        "dfs.datanode.http.address" : "0.0.0.0:50075",
+        "dfs.datanode.https.address" : "0.0.0.0:50475",
+        "dfs.datanode.ipc.address" : "0.0.0.0:8010",
+        "dfs.journalnode.http-address" : "0.0.0.0:8480",
+        "dfs.namenode.http-address" : "0.0.0.0:50070",
+        "dfs.namenode.https-address" : "0.0.0.0:50470",
+        "dfs.namenode.rpc-bind-host" : "0.0.0.0",
+        "dfs.namenode.secondary.http-address" : "0.0.0.0:50090"
+      }
+    }
+  ],
+  "host_groups": [
+    {
+      "name": "master",
+      "components": [
+        {
+          "name": "NAMENODE"
+        },
+        {
+          "name": "SECONDARY_NAMENODE"
+        },
+        {
+          "name": "RESOURCEMANAGER"
+        },
+        {
+          "name": "HISTORYSERVER"
+        },
+        {
+          "name": "NAGIOS_SERVER"
+        },
+        {
+          "name" : "GANGLIA_SERVER"
+        },
+        {
+          "name" : "GANGLIA_MONITOR"
+        },
+        {
+          "name": "APP_TIMELINE_SERVER"
+        },
+        {
+          "name": "ZOOKEEPER_SERVER"
+        }
+      ],
+      "cardinality": "1"
+    },
+    {
+      "name": "slave",
+      "components": [
+        {
+          "name": "DATANODE"
+        },
+        {
+          "name": "HDFS_CLIENT"
+        },
+        {
+          "name": "NODEMANAGER"
+        },
+        {
+          "name": "YARN_CLIENT"
+        },
+        {
+          "name": "MAPREDUCE2_CLIENT"
+        },
+        {
+          "name": "ZOOKEEPER_CLIENT"
+        },
+        {
+          "name" : "GANGLIA_MONITOR"
+        }        
+      ],
+      "cardinality": "2"
+    }
+  ],
+  "Blueprints": {
+    "blueprint_name": "datalyse",
+    "stack_name": "HDP",
+    "stack_version": "2.2"
+  }
+}

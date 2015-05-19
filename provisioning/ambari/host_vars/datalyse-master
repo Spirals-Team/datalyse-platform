@@ -1,0 +1,5 @@
+weave_dns_cidr: 10.0.1.254/24
+weave_ambari_server_cidr: 10.0.0.254/24
+weave_ambari_server_hostname: ambari-server
+weave_ambari_agent_cidr: 10.0.0.253/24
+weave_ambari_agent_hostname: ambari-agent-0

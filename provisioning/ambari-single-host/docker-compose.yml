@@ -1,0 +1,19 @@
+server:
+  build: images/datalyse/ambari-server
+  ports: 
+    - "8080:8080"
+
+agent:
+  build: images/datalyse/ambari-agent
+  links:
+    - server
+
+shell:
+  image: sequenceiq/ambari-shell
+  command: --ambari.host=server --ambari.user=admin --ambari.password=admin
+  links:
+    - server
+  volumes:
+    - "blueprints:/blueprints"
+  stdin_open: true
+  tty: true

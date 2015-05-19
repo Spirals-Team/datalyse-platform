@@ -1,0 +1,3 @@
+- include: ambari-master-nodes.yml
+- include: ambari-slave-nodes.yml
+- include: ambari-cluster.yml

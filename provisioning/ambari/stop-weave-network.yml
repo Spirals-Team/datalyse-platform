@@ -1,0 +1,10 @@
+- name: stop weave network
+  sudo: yes
+  hosts: 
+    - tag_docker
+  tasks:
+    - name: stop weavedns
+      command: "{{ weave_bin }} stop-dns"
+      
+    - name: stop weave
+      command: "{{ weave_bin }} stop"

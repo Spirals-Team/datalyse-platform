@@ -2,8 +2,6 @@
 set -e
 set -o xtrace
 
-PREFIX="datalyse"
-
 function abspath {
   echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 }
@@ -24,7 +22,8 @@ for dockerfiledir in "$@"; do
 	fi
 
 	name=$(basename $(abspath "$dockerfiledir"))
-	imagename="$PREFIX/$name"
+	prefix=$(basename $(dirname $(abspath "$dockerfiledir")))
+	imagename="$prefix/$name"
 
-	docker build -t $imagename $dockerfiledir 2>&1 | gsed -e "s/^/[\x1b[32m $name \x1b[0m]: &/"
+	docker build -t $imagename $dockerfiledir #2>&1 | gsed -e "s/^/[\x1b[32m $name \x1b[0m]: &/"
 done
