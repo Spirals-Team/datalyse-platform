@@ -1,0 +1,4 @@
+- name: setup weave network
+  hosts: all
+  roles:
+  - weave-network

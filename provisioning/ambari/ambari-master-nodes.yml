@@ -1,9 +1,0 @@
-- name: provision master nodes
-  hosts: tag_master
-  sudo: yes
-  roles:
-    - docker-registry
-    - weave-network
-    - ambari-docker-images
-    - ambari-server
-    - ambari-agent

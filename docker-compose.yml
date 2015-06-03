@@ -1,0 +1,12 @@
+server:
+  image: datalyse/ambari-server
+  ports:
+    - "8080"
+  hostname: ambari-server.weave.local
+
+agent:
+  image: datalyse/ambari-agent
+  hostname: ambari-agent.weave.local
+  environment:
+    - AMBARI_SERVER=ambari-server.weave.local
+    - "affinity:container!=app_agent_*"

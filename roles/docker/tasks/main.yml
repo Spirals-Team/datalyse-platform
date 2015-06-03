@@ -1,0 +1,29 @@
+- name: install missing drivers
+  apt: name="linux-image-extra-{{ ansible_kernel }}"
+
+- name: install docker
+  shell: wget -qO- https://get.docker.com/ | sh creates=/usr/bin/docker
+
+- name: configure docker
+  lineinfile:
+    dest: /etc/default/docker
+    regexp: "^[#]?DOCKER_OPTS="
+    line: DOCKER_OPTS="-D -H unix:// -H tcp://0.0.0.0:2375"
+    state: present
+  notify:
+    - restart docker
+
+- meta: flush_handlers
+
+- name: ensure docker is running
+  service: name=docker state=running
+
+- name: wait for docker
+  wait_for: port=2375
+
+- name: add local ssh user to docker group
+  user: name={{ ansible_ssh_user }} groups=docker append=yes
+
+# for the version constraint cf. https://github.com/ansible/ansible/issues/10879
+- name: install docker-py
+  pip: name=docker-py version=1.1.0 

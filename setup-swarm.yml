@@ -1,0 +1,10 @@
+- name: setup swarm agent
+  hosts: all
+  roles:
+  - swarm-agent
+
+- name: setup swarm master agent
+  hosts: masters
+  roles:
+  - swarm-agent-master
+

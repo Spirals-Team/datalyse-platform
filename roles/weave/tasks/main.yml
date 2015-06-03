@@ -1,0 +1,8 @@
+- name: download weave
+  get_url: url={{ weave_url }} dest={{ weave_bin }}
+
+- name: setup weave permissions 
+  file: path={{ weave_bin }} mode="u+rx,g+rx,o+rwx"
+
+- name: pull weave containers
+  command: weave --local setup

@@ -1,0 +1,4 @@
+ambari_images:
+  - datalyse/ambari-base
+  - datalyse/ambari-server  
+  - datalyse/ambari-agent

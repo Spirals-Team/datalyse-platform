@@ -1,0 +1,10 @@
+[all:vars]
+ansible_ssh_user=ubuntu
+ansible_ssh_private_key_file=krikava.pem
+
+[masters]
+datalyse-master   ansible_ssh_host=178.237.109.178 
+
+[slaves]
+datalyse-1        ansible_ssh_host=31.193.50.154 
+datalyse-2        ansible_ssh_host=31.193.50.155 

@@ -1,0 +1,19 @@
+- name: destroy cluster
+  gather_facts: no
+  hosts: all
+  sudo: yes
+  tasks:
+    - name: kill all containers
+      shell: docker ps -q | xargs docker kill
+      register: result
+      until: result|success
+      retries: 5
+      delay: 5
+    - name: remove all containers
+      shell: docker ps -qa | xargs docker rm -f
+      register: result
+      until: result|success
+      retries: 5
+      delay: 5
+    - name: restart docker service
+      service: name=docker state=restarted

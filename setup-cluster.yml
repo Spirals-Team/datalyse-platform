@@ -1,0 +1,2 @@
+- include: setup-weave-network.yml
+- include: setup-swarm.yml

@@ -1,7 +1,0 @@
-images_dir: /tmp/images
-
-ambari_source_images:
-  - datalyse/ambari-base
-  - datalyse/ambari-common
-  - datalyse/ambari-server  
-  - datalyse/ambari-agent

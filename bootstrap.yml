@@ -1,0 +1,7 @@
+- name: bootstrap the cluster nodes
+  hosts: all
+  sudo: yes
+  roles:
+  - common
+  - docker
+  - weave

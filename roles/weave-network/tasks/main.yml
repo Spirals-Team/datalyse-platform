@@ -1,0 +1,29 @@
+# the reason for the retries is because of an issue discussed here
+# https://github.com/weaveworks/weave/issues/835
+
+- name: launch weave
+  command: weave launch -iprange {{ weave_ip_pool }} -initpeercount {{ weave_peer_count }}
+  register: result
+  until: result|success
+  retries: 5
+  delay: 5
+
+- name: launch weave DNS
+  command: weave launch-dns {{ weave_dns }}/24 -debug
+  register: result
+  until: result|success
+  retries: 5
+  delay: 5
+
+- name: launch weave proxy
+  command: weave launch-proxy --with-dns --with-ipam
+  register: result
+  until: result|success
+  retries: 5
+  delay: 5
+
+- name: wait for the weave proxy
+  wait_for: port={{ weave_proxy_port }}
+
+- name: connect to weave master
+  command: weave connect {{ hostvars['datalyse-master']['internal_ip'] }}

@@ -1,6 +1,0 @@
-- name: provision slave nodes
-  hosts: tag_slave
-  sudo: yes
-  roles:
-    - weave-network
-    - ambari-agent

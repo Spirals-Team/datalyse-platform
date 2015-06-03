@@ -1,0 +1,6 @@
+swarm_token: 23d833b51ae3a37bf7269e0cf1779520
+swarm_port: 3376
+
+weave_ip_pool: 10.1.1.0/24
+weave_peer_count: 3
+weave_proxy_port: 12375

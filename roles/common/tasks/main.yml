@@ -1,0 +1,12 @@
+- name: fix missing hostname entry in /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ internal_ip }} {{ inventory_hostname }}"
+    state: present
+
+# python-pip is broken in this version of ubuntu  
+# - name: install python pip
+#   apt: name=python-pip force=yes update_cache=yes
+
+- name: install python pip
+  shell: wget -O - https://bootstrap.pypa.io/get-pip.py | sudo python creates=/usr/local/bin/pip

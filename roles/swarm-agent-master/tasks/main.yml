@@ -1,0 +1,12 @@
+- name: register the swarm master
+  docker:
+    image: swarm
+    name: swarm-agent-master
+    detach: yes
+    ports: 
+    - "{{ swarm_port }}:2375"
+    command: manage token://{{ swarm_token }}
+    state: running
+
+- name: wait for the swarm master
+  wait_for: port={{ swarm_port }}

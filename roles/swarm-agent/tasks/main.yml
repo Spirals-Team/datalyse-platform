@@ -1,0 +1,7 @@
+- name: register nodes to swarm cluster
+  docker:
+    image: swarm
+    name: swarm-agent
+    detach: yes
+    command: join --addr={{ internal_ip }}:{{ weave_proxy_port }} token://{{ swarm_token }}
+    state: running

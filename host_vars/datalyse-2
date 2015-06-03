@@ -1,0 +1,3 @@
+floating_ip: 10.67.29.13
+internal_ip: 10.67.24.195
+weave_dns: 10.1.2.3

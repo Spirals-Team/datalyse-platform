@@ -1,4 +1,0 @@
-- name: install packages
-  apt: name={{ item }} force=yes update_cache=yes
-  with_items:
-    - python-pip
