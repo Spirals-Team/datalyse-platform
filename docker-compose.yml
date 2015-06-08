@@ -1,12 +1,38 @@
 server:
   image: datalyse/ambari-server
+  mem_limit: 4g
+
+  # it has to run privileged to have access to /proc/<pid>/exe
+  # ambari-server startup script looking_for_pid function uses
+  # it to check whether the server has started or not
+  # cf. https://github.com/docker/docker/issues/6800
+  privileged: true
   ports:
-    - "8080"
-  hostname: ambari-server.weave.local
+    - "8080:8080"
+  hostname: ambari-server
+  domainname: weave.local
+  dns_search: weave.local
+  environment:
+
+    # while this is not that important, it simplifies the life when
+    # connecting to ambari API
+    - "constraint:node==datalyse-master"
+
 
 agent:
   image: datalyse/ambari-agent
-  hostname: ambari-agent.weave.local
+  domainname: weave.local
+  dns_search: weave.local
+  privileged: true
+  mem_limit: 4g
   environment:
     - AMBARI_SERVER=ambari-server.weave.local
-    - "affinity:container!=app_agent_*"
+
+    # schedule on a docker that does not run the server
+    - "affinity:container!=datalyseplatform_server_*"
+
+shell:
+  image: sequenceiq/ambari-shell
+  domainname: weave.local
+  dns_search: weave.local
+  command: "--ambari.host=ambari-server.weave.local"
