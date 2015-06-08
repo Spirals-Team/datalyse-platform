@@ -1,0 +1,4 @@
+- name: build ambari docker images
+  hosts: all
+  roles:
+  - local-ambari-docker-images

@@ -1,0 +1,9 @@
+- name: copy images sources
+  synchronize: src=images/ dest={{ images_dir }}
+
+- name: build images
+  docker_image:
+    name: "{{ item }}"
+    path: "{{ images_dir }}/{{ item }}"
+    state: build
+  with_items: ambari_images

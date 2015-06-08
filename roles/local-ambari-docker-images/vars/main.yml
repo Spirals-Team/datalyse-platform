@@ -1,3 +1,4 @@
+images_dir: /tmp/ambari-images
 ambari_images:
   - datalyse/ambari-base
   - datalyse/ambari-server  
