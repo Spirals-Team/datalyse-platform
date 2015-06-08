@@ -1,0 +1,17 @@
+# - name: install python requirements
+#   pip: name={{ item }}
+#   sudo: yes
+#   with_items:
+#     - requests
+#     - python-ambariclient
+
+- name: create a blueprint directory
+  file: path={{ blueprints_dir }} state=directory
+
+- name: copy blueprint
+  template: src=blueprints/{{ ambari_blueprint }}.j2 dest={{ blueprints_dir }}/{{ ambari_blueprint }}
+  with_items: blueprints
+
+- name: copy hostmap
+  template: src=blueprints/{{ ambari_blueprint }}.hosts_map.j2 dest={{ blueprints_dir }}/{{ ambari_blueprint }}.hosts_map
+  with_items: blueprints

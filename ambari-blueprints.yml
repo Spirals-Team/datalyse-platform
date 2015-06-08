@@ -1,0 +1,4 @@
+- name: copy ambari blueprints
+  hosts: masters
+  roles:
+  - ambari-blueprints

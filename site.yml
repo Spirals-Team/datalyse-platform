@@ -1,3 +1,4 @@
 - include: bootstrap.yml
 - include: setup-cluster.yml
 # - include: build-ambari-docker-images.yml
+- include: ambari-blueprints.yml

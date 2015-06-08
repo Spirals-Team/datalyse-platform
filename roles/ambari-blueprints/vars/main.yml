@@ -1,0 +1,3 @@
+blueprints_dir: /tmp/blueprints
+blueprints:
+  - datalyse-hdfs-yarn
