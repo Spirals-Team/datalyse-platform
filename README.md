@@ -4,16 +4,31 @@ This branch contains code for running the Datalyse platform on the top of Eolas 
 
 ## Overview
 
+_TBW_
+
 ## Provisioning
 
 In order to set up the cluster, the following tools are needed:
 
-- git
-- ansible
-- docker
-- docker-machine (_optional_)
+- git to check out this repository
+- [ansible](http://ansibe.com)
+- [docker](http://docker.com)
+- [docker-swarm](https://docs.docker.com/swarm)
+- [docker-compose](https://docs.docker.com/compose)
 
-### Reserving the nodes
+On OSX all can be installed using homebrew.
+
+The following steps are needed to provision a Datalye cluster:
+
+1. collect individual nodes that will form the cluster
+1. create a docker-swarm token
+1. bootstrap the cluster (install docker and some basic management)
+1. (_optional_) build `datalyse/ambari-*` images locally otherwise use prebuild images from [docker hub](https://registry.hub.docker.com/u/datalyse)
+1. setup a virtual network for docker containers
+1. create a docker swarm
+1. start 
+
+### 1. Collect individual nodes
 
 First, it is needed to get the nodes that will be part of the cluster.
 This can be done either using the provided ansible scripts or directly, using docker-machine.
@@ -26,41 +41,50 @@ For the purpose of this tutorial, we use the three `dlyse.large` machines called
 
 All run Ubuntu 14.04 LTS image.
 
-### Create a docker-swarm token for node discovery
+### 2. Create a docker-swarm token
 
-```sh
+```
 $ docker-swarm create
 feba5683f4a1645b68365f562f81694f
 ```
 
-### Bootstrap the cluster with docker-machine
+This token will be used for node discovery.
 
-_TBW_
+### 3. Bootstrap the cluster
 
-### Bootstrap the cluster with Ansible
+_Note: some of the steps in here should become obsolete once there is an access to the openstack API and [docker-machine](https://docs.docker.com/machine) can be used directly._
 
 1. Edit the configuration files
-1. Start
+   - `inventory`: register all nodes, the `ansible_ssh_host` points to the public IP of the node---i.e. the external facing one.
+   - `group_vars/all`: 
+     - `swarm_token`: set to the output from the `docker-swarm create`
+     - `weave_peer_count`: set to the number of nodes 
+   - `host_vars/<node-symbolic-name-as-register-in-inventory>`
+     - `floating_ip`: node floating IP - the internal one
+     - `internal_ip`: node internal IP as given by nova
+     - `weave_dns`: an unique IP in 10.1.2.0/24 network---i.e. each node will be running a DNS on this unique address
+     
+1. Bootstrap
 
-    1. Bootstrap
-
-        ```sh
-        $ ansible-playbook -i inventory bootstrap.yml
-        ``` 
+    ```
+    $ ansible-playbook -i inventory bootstrap.yml
+    ``` 
         
-        This will install docker, weave and prepare the host to join the cluster.
+    This will install docker, weave and prepare the host to join the cluster.
 
-    1. Create cluster
-    
-        ```sh
-        $ ansible-playbook -i inventory setup-cluster.yml
-        ``` 
+1. Create cluster
+   
+    ```
+    $ ansible-playbook -i inventory setup-cluster.yml
+    ``` 
         
-        This will setup the weave network and create the swarm.
+    This will setup the weave network and create the swarm.
+
+1. (_optional_)
 
     Together the operations can be launched using:
 
-    ```sh
+    ```
     $ ansible-playbook -i inventory site.yml
     ``` 
 
