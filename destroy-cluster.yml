@@ -9,11 +9,22 @@
       until: result|success
       retries: 5
       delay: 5
+    
     - name: remove all containers
       shell: docker ps -qa | xargs docker rm -f
       register: result
       until: result|success
       retries: 5
       delay: 5
+    
+    - name: remove all images
+      shell: docker images -q | xargs docker rmi -f
+      when: remove_images is defined
+      register: result
+      until: result|success
+      retries: 5
+      delay: 5
+
     - name: restart docker service
       service: name=docker state=restarted
+
