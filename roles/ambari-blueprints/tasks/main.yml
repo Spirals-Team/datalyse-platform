@@ -9,9 +9,5 @@
   file: path={{ blueprints_dir }} state=directory
 
 - name: copy blueprint
-  template: src=blueprints/{{ ambari_blueprint }}.j2 dest={{ blueprints_dir }}/{{ ambari_blueprint }}
-  with_items: blueprints
-
-- name: copy hostmap
-  template: src=blueprints/{{ ambari_blueprint }}.hosts_map.j2 dest={{ blueprints_dir }}/{{ ambari_blueprint }}.hosts_map
+  template: src={{ item }}.j2 dest={{ blueprints_dir }}/{{ item }}
   with_items: blueprints

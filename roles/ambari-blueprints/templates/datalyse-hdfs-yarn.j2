@@ -1,15 +1,6 @@
 {
   "configurations": [
     {
-      "nagios-env": {
-        "nagios_group" : "nagios",
-        "nagios_user" : "nagios",
-        "nagios_web_login" : "admin",
-        "nagios_web_password" : "admin",
-        "nagios_contact": "{{ ambari.nagios.contact }}"
-      }
-    },
-    {
       "mapred-site" : {
         "mapreduce.jobhistory.bind-host" : "0.0.0.0"
       }
@@ -53,9 +44,6 @@
           "name": "HISTORYSERVER"
         },
         {
-          "name": "NAGIOS_SERVER"
-        },
-        {
           "name" : "GANGLIA_SERVER"
         },
         {
@@ -71,7 +59,7 @@
       "cardinality": "1"
     },
     {
-      "name": "slave",
+      "name": "slave_1",
       "components": [
         {
           "name": "DATANODE"

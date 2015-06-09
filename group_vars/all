@@ -4,3 +4,5 @@ swarm_port: 3376
 weave_ip_pool: 10.1.1.0/24
 weave_peer_count: 3
 weave_proxy_port: 12375
+
+ambari_nagios_contact: admin@localhost
