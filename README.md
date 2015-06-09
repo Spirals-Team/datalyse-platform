@@ -272,30 +272,41 @@ Next, we try the inter container communication:
 
 Here is a set of useful commands for working with the cluster
 
+- Destroy cluster
+
+  ```
+  $ ansible-playbook -i inventory-proxy destroy-cluster.yml --extra-vars "remove_images=true"
+  ```
+
 - Restart docker
 
-  ```sh
-  ansible all -s -i inventory -m service -a "name=docker state=restarted"
+  ```
+  $ ansible all -s -i inventory -m service -a "name=docker state=restarted"
   ```
 
 - Command to all nodes
 
-  ```sh
-  ansible all -i inventory -a "docker ps"
+  ```
+  $ ansible all -i inventory -a "docker ps"
   ```
 
 - Remove all containers
 
-  ```sh
+  ```
   $ ansible all -s -i inventory -m shell -a "docker ps -qa | xargs docker rm -f"
   ```
 
 - Remove all images
 
-  ```sh
+  ```
   $ ansible all -s -i inventory -m shell -a "docker images -q | xargs docker rmi -f"
   ```
 
+- Remove blueprint
+
+  ```
+  $ curl -u"admin:admin" -H 'X-Requested-By: ambari' -i -X  DELETE http://datalyse-master:8080/api/v1/blueprints/datalyse-hdfs-yarn
+  ```
   
 ## Operations in VPN
 
@@ -303,9 +314,23 @@ The `vpn-user` and `vpn-host` denotes respectively a username and a machine with
 
 - Setting up a SOCKS proxy
 
-    ```sh
-    $ ssh -vND 8888 vpn-user@vpn-host
     ```
+    $ ssh -vND 8888 vpn-user@vpn-host
+    $ export http_proxy=socks5://127.0.0.1:8888
+    $ export https_proxy=socks5://127.0.0.1:8888
+    ```
+
+- Setting up an http proxy
+
+  Install `tinyproxy` and update the `/etc/tinyproxy.conf` `Port` setting to 8035.
+  Make sure the service is running.
+  From the local machine run:
+
+  ```
+  $ ssh -vNL 8035:localhost:8035 vpn-user@vpn-host
+  $ export http_proxy=http://localhost:8035
+  $ export https_proxy=http://localhost:8035
+  ```
 
 - Connecting to the nodes
 
@@ -314,8 +339,11 @@ The `vpn-user` and `vpn-host` denotes respectively a username and a machine with
     ```
     Host *.eolas
        User vpn-user
+       IdentityFile ~/.ssh/datalyse-eolas-<user>.pam
        ProxyCommand ssh vpn-host "nc -w 60 `basename %h .eolas` %p"
     ```  
+
+    The `datalyse-eolas-<user>.pam` is a user certificate obtained from OpenStack.
 
     permits:
     
