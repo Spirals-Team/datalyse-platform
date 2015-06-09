@@ -36,3 +36,9 @@ shell:
   domainname: weave.local
   dns_search: weave.local
   command: "--ambari.host=ambari-server.weave.local"
+  volumes:
+    - /tmp/blueprints:/tmp/blueprints
+  environment:
+
+    # the reason is that the blueprints are there
+    - "affinity:container==datalyseplatform_server_*"
